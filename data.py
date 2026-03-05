@@ -25,8 +25,8 @@ def fetch_zero_price_data(cursor):
 
     sql_query = (
         f"select olorno as \"SO_NUMBER\", olline as \"LINE_NUMBER\", "
-        f"olcuno as \"CLIENT_NUMBER\", olprdc as \"INDEKS\" "
-        f"from ali800cfap.srbsol where oldelt >= {date_filter} and OLSALP = 0 and olstat = ''"
+        f"olcuno as \"CLIENT_NUMBER\", olprdc as \"INDEKS\", OHHAND as \"HANDLER\" "
+        f"from ali800cfap.srbsol left join ali800cfap.srbsoh on ohorno = olorno where oldelt >= {date_filter} and OLSALP = 0 and olstat = '' and ohstat = '' "
     )
 
     printandlog(f"Wykonywanie zapytania o dane: {sql_query}")

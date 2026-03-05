@@ -3,3 +3,4 @@ config.txt
 __pycache__/
 *.pyc
 .idea/
+/build
