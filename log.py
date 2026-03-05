@@ -11,7 +11,7 @@ else:
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 # Create 'logs' directory if it doesn't exist
-logs_dir = os.path.join(application_path, "logs")
+logs_dir = os.path.join(application_path, "zero_price_reporter_logs")
 if not os.path.exists(logs_dir):
     os.makedirs(logs_dir)
 

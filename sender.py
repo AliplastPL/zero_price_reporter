@@ -1,23 +1,38 @@
 import os
+import sys
 from azure.communication.email import EmailClient
 from log import printandlog
 
 
 def get_connection_string():
+    # 1. Sprawdź zmienną środowiskową (zawsze najwyższy priorytet)
     conn_str = os.environ.get("COMMUNICATION_SERVICES_CONNECTION_STRING")
     if conn_str:
         return conn_str
 
-    # Fallback to config.txt if file exists
-    config_path = "config.txt"
-    if os.path.exists(config_path):
-        try:
-            with open(config_path, "r") as f:
-                for line in f:
-                    if "COMMUNICATION_SERVICES_CONNECTION_STRING=" in line:
-                        return line.split("=", 1)[1].strip()
-        except Exception as e:
-            printandlog(f"Błąd podczas czytania pliku konfiguracyjnego: {str(e)}")
+    # 2. Szukaj pliku config.txt
+    if getattr(sys, 'frozen', False):
+        # Jeśli uruchomione jako .exe, szukaj wewnątrz paczki (sys._MEIPASS)
+        # oraz opcjonalnie obok pliku .exe
+        bundle_dir = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+        exe_dir = os.path.dirname(sys.executable)
+        paths_to_check = [
+            os.path.join(bundle_dir, "config.txt"), # Zaszyty w środku
+            os.path.join(exe_dir, "config.txt")     # Obok pliku (nadpisanie)
+        ]
+    else:
+        # Jeśli uruchomione jako skrypt, szukaj w folderze projektu
+        paths_to_check = [os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.txt")]
+
+    for config_path in paths_to_check:
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding='utf-8') as f:
+                    for line in f:
+                        if "COMMUNICATION_SERVICES_CONNECTION_STRING=" in line:
+                            return line.split("=", 1)[1].strip()
+            except Exception as e:
+                printandlog(f"Błąd podczas czytania pliku ({config_path}): {str(e)}")
 
     return None
 

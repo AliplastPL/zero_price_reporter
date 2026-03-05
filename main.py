@@ -1,8 +1,8 @@
 from log import printandlog
 from data import get_db_connection, fetch_zero_price_data, fetch_email_recipients
 from sender import send_notification_email
-
-
+#build
+#pyinstaller --noconfirm --onefile --noconsole --hidden-import "azure.communication.email" --add-data "config.txt;." --distpath "C:\AliplastApp" main.py
 def main():
     con = get_db_connection()
     if not con:
