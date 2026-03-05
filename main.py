@@ -1,16 +1,38 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from log import printandlog
+from data import get_db_connection, fetch_zero_price_data, fetch_email_recipients
+from sender import send_notification_email
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__': test
-    print_hi('PyCharm')
+def main():
+    con = get_db_connection()
+    if not con:
+        return
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    try:
+        cursor = con.cursor()
+
+        # 1. Pobierz dane o zerowych cenach
+        data = fetch_zero_price_data(cursor)
+
+        # 2. Sprawdź czy są wyniki - jeśli nie, kończymy
+        if not data:
+            printandlog("Brak rekordów z OLSALP=0. Program kończy działanie.")
+            return
+
+        printandlog(f"Znaleziono {len(data)} rekordów. Przygotowywanie wysyłki...")
+
+        # 3. Pobierz adresatów
+        recipients = fetch_email_recipients(cursor)
+
+        # 4. Wyślij powiadomienie
+        send_notification_email(data, recipients)
+
+    except Exception as e:
+        printandlog(f"Błąd krytyczny w głównym procesie: {str(e)}")
+    finally:
+        con.close()
+        printandlog("Połączenie z bazą danych zamknięte.")
+
+
+if __name__ == "__main__":
+    main()
